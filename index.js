@@ -78,6 +78,26 @@ exports.toCapitalize = (str) => {
 exports.blobToBuffer = async (blob) => {
   return Buffer.from(await blob.toArrayBuffer());
 };
+exports.streamToBuffer = (stream) => {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    stream.on("data", (chunk) => chunks.push(chunk));
+    stream.on("end", () => resolve(Buffer.concat(chunks)));
+    stream.on("error", reject);
+  });
+};
+exports.bufferToStream = (buffer) => {
+  const { Readable } = require("stream");
+  return new Promise((resolve) => {
+    const stream = new Readable({
+      read() {
+        this.push(buffer);
+        this.push(null);
+      },
+    });
+    resolve(stream);
+  });
+};
 exports.getBuffer = async (url) => {
   const fetch = require("node-fetch");
   const response = await fetch(url);
