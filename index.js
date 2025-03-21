@@ -72,6 +72,21 @@ exports.formatDateTime = (date, locale = "id", timezone = "Asia/Jakarta") => {
 exports.toCapitalize = (str) => {
   return str.replace(/\b\w/g, (char) => char.toUpperCase());
 };
+exports.groupByProperty = (propertyName, arrayData) => {
+  const datas = [];
+  for (let data of arrayData) {
+    if (!datas.find((x) => x[propertyName] === data[propertyName])) {
+      datas.push({
+        [propertyName]: data[propertyName],
+        data: [],
+      });
+    } else {
+      const x = datas.find((y) => y[propertyName] === data[propertyName]);
+      x.data.push(data);
+    }
+  }
+  return datas;
+};
 /// END FORMATTER
 
 /// OTHER
@@ -114,7 +129,7 @@ exports.execPromise = (command) => {
     exec(command, (err, stdout, stderr) => {
       if (err) reject(err || stderr);
       else resolve(stdout || stderr);
-    })
+    }),
   );
 };
 exports.spawnPromise = (command, args) => {
