@@ -72,20 +72,51 @@ exports.formatDateTime = (date, locale = "id", timezone = "Asia/Jakarta") => {
 exports.toCapitalize = (str) => {
   return str.replace(/\b\w/g, (char) => char.toUpperCase());
 };
-exports.groupByProperty = (propertyName, arrayData) => {
-  const datas = [];
-  for (let data of arrayData) {
-    if (!datas.find((x) => x[propertyName] === data[propertyName])) {
-      datas.push({
-        [propertyName]: data[propertyName],
-        data: [],
-      });
-    } else {
-      const x = datas.find((y) => y[propertyName] === data[propertyName]);
-      x.data.push(data);
+exports.groupByProperty = (propertyName, arrayData) =>
+  new Promise((resolve) => {
+    const datas = [];
+    for (let data of arrayData) {
+      if (!datas.find((x) => x[propertyName] === data[propertyName])) {
+        datas.push({
+          [propertyName]: data[propertyName],
+          data: [],
+        });
+      } else {
+        const x = datas.find((y) => y[propertyName] === data[propertyName]);
+        x.data.push(data);
+      }
     }
-  }
-  return datas;
+    resolve(datas);
+  });
+exports.paginateData = (arrayData, page = 1, size = 10) => {
+  return new Promise((resolve) => {
+    if (isNaN(page) || page < 1) page = 1;
+    const totalPages = Math.ceil(arrayData.length / size);
+    const next = page < totalPages;
+    const prev = page > 1;
+    if (page > totalPages) {
+      resolve({
+        totalData: arrayData.length,
+        totalPages,
+        currentPage: page,
+        next,
+        prev,
+        data: arrayData.slice(0, parseInt(size || 10)),
+      });
+    }
+    const startIndex = (page - 1) * parseInt(size);
+    const endIndex = startIndex + parseInt(size);
+    const data = arrayData.slice(startIndex, endIndex);
+    resolve({
+      totalData: arrayData.length,
+      totalPages,
+      currentPage: page,
+      size,
+      next,
+      prev,
+      data,
+    });
+  });
 };
 /// END FORMATTER
 
