@@ -76,18 +76,21 @@ exports.groupByProperty = (propertyName, arrayData) =>
   new Promise((resolve) => {
     const datas = [];
     for (let data of arrayData) {
-      if (!datas.find((x) => x[propertyName] === data[propertyName])) {
+      const property = datas.find(
+        (d) => d[propertyName] === data[propertyName],
+      );
+      if (!property) {
         datas.push({
           [propertyName]: data[propertyName],
-          data: [],
+          data: [data],
         });
       } else {
-        const x = datas.find((y) => y[propertyName] === data[propertyName]);
-        x.data.push(data);
+        property.data.push(data);
       }
     }
     resolve(datas);
   });
+
 exports.paginateData = (arrayData, page = 1, size = 10) => {
   return new Promise((resolve) => {
     if (isNaN(page) || page < 1) page = 1;
